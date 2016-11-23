@@ -21,4 +21,7 @@
             do { if (DEBUG_TEST) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 
 
+#define GREET_MSG_BUFF_MAX_LEN 1000
+#define GREET_MSG "hello! welcome to mail server."
+
 #endif /* UTILS_H_ */

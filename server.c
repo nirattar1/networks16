@@ -77,11 +77,17 @@ int setup_server()
 }
 
 
+
 void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t client_addr_len)
 {
 	//new connection
 	debug_print("%s\n", "new connection.");
 
+	//send greeting to client
+	char msg_buf[GREET_MSG_BUFF_MAX_LEN];
+	strcpy(msg_buf, GREET_MSG);
+
+	send(conn, msg_buf, GREET_MSG_BUFF_MAX_LEN, 0);
 
 	//close connection
 	debug_print("%s\n", "closing connection.");

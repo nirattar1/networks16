@@ -11,9 +11,11 @@
 int main ()
 {
 
+
+	//client connect to server right away.
+
 	//create socket.
 	int sfd = setup_client();
-
 
 	//connect to server.
 	struct sockaddr_in dest_addr;
@@ -21,6 +23,14 @@ int main ()
 	dest_addr.sin_port = htons( DEFAULT_PORT );
 	inet_pton(AF_INET, "127.0.0.1", &dest_addr.sin_addr);
 	connect(sfd, (struct sockaddr*) &dest_addr, sizeof(struct sockaddr));
+	//ERROR CODE
+
+	//connection is ready. handle according to protocol/input.
+
+	//handle according to protocol.
+	handle_connection (sfd);
+
+	//read message from server.
 
 
 	if (close(sfd))	//should return 0
@@ -47,6 +57,22 @@ int setup_client()
 	return sfd;
 
 }
+
+
+
+void handle_connection (int socket)
+{
+
+	//first read greeting from client.
+	char msg_buf[GREET_MSG_BUFF_MAX_LEN];
+	recv(socket, msg_buf, GREET_MSG_BUFF_MAX_LEN, 0);
+
+	//display greeting message
+	printf("%s\n", msg_buf);
+
+}
+
+
 
 
 void handle_error (const char * msg)
