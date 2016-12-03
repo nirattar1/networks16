@@ -30,9 +30,8 @@ int main ()
 	//handle according to protocol.
 	handle_connection (sfd);
 
-	//read message from server.
 
-
+	//end of transaction with server. close socket.
 	if (close(sfd))	//should return 0
 	{
 		handle_error("close error");

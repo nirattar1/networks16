@@ -21,6 +21,11 @@
             do { if (DEBUG_TEST) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 
 
+//will get a char pointer and its length.
+//will zero out all the chars up to length.
+void ZeroCharArr(char * arr, int length);
+
+
 #define GREET_MSG_BUFF_MAX_LEN 1000
 #define GREET_MSG "hello! welcome to mail server."
 
