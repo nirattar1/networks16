@@ -10,9 +10,24 @@
 #include <string.h>
 #include "utils.h"
 #include "protocol.h"
+#include "msg_db.h"
+#include <stdio.h>
+
+
+//GLOBALS
+Mail_DB _server_db;
+
+
+Mail_DB * GetServerDB()
+{
+	return &_server_db;
+}
 
 int main ()
 {
+
+	//initialize msgs DB.
+	Mail_DB_Init(&_server_db);
 
 	//create socket, bind and listen.
 	int sfd = setup_server();
@@ -90,9 +105,11 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	strcpy(msg_buf, GREET_MSG);
 	send(conn, msg_buf, GREET_MSG_BUFF_MAX_LEN, 0);
 
+	//perform client login.
+	char curr_user [MAX_USERNAME];
+	strcpy (curr_user, "Moshe");
 
-
-	//receive request from client.
+	//read request from client.
 	ProtocolRequest req;
 	ProtocolRequest_Init(&req);
 	ReadReqFromSocket(conn, &req);
@@ -103,7 +120,22 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	debug_print("req header 2 name: %s", req._headers[1]._name);
 	debug_print("req header 2 val: %s", req._headers[1]._value);
 
-	HandleRequest();
+	//handle user's request.
+	//HandleRequest(&req);
+
+	//test - another req
+	ProtocolRequest_Init(&req);
+	ReadReqFromSocket(conn, &req);
+
+	debug_print("req type:%d\n", req._method);
+	debug_print("req header 1 name: %s", req._headers[0]._name);
+	debug_print("req header 1 val: %s", req._headers[0]._value);
+	debug_print("req header 2 name: %s", req._headers[1]._name);
+	debug_print("req header 2 val: %s", req._headers[1]._value);
+
+	//handle user's request.
+	RequestDispatch(conn, &req, curr_user);
+
 
 	//close connection
 	debug_print("%s\n", "closing connection.");
@@ -113,3 +145,42 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	}
 
 }
+
+
+void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr_user)
+{
+	int expected_num_headers = GetExpectedNumHeaders(req);
+
+	//GET method
+	if (req->_method==METHOD_GET)
+	{
+		//we need to read the mail id from header.
+
+		if (!strcmp(req->_headers[0]._name, "mail_id"))
+		{
+			handle_error("could not get mail id field");
+		}
+		int mail_id = atoi(req->_headers[0]._value);
+
+		//get the correct mail of the user.
+		const Mail_DB * db = GetServerDB();
+		const MailMessage * found_mail = GetMail(mail_id, curr_user, db);
+
+		//create reply from found message.
+		ProtocolReply rep;
+		ProtocolReply_Init (&rep);
+		if (found_mail==NULL)
+		{
+			rep._status = REPLY_STATUS_GEN_ERROR;
+		}
+		else
+		{
+			rep._status = REPLY_STATUS_OK;
+			MsgToReply(found_mail, &rep);
+		}
+		//send the reply over socket.
+		SendRepToSocket (socket, &rep);
+	}
+}
+
+

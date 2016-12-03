@@ -81,10 +81,25 @@ typedef struct ProtocolReply
 	Rep_Status _status;
 	//reply headers
 	ProtocolHeader _headers [MAX_NUM_HEADERS];
+	//number of current headers.
+	int _num_headers;
 	//reply content
 } ProtocolReply;
 
+void ProtocolReply_Init (ProtocolReply * rep);
 
+
+//functionality to add a header to reply. (based on value)
+void AddHeaderReply (ProtocolReply * rep, const char * header_name,
+		const char * header_value);
+
+//will take a reply and return its status in number.
+//return -1 if status or request was not defined.
+int RepStatusToNum (const ProtocolReply * rep);
+
+//gets a message and copies its data to reply object
+//(used in "GET" method)
+void MsgToReply(const MailMessage * msg, ProtocolReply * rep);
 
 //will get a request struct, and a connection socket.
 //will send the appropriate request on the socket.

@@ -13,18 +13,23 @@ clean:
 client: client.o protocol.o utils.o
 	gcc -o $@ $^ $(CFLAGS)
 
-server: server.o protocol.o utils.o
+server: server.o protocol.o utils.o msg.o msg_db.o
 	gcc -o $@ $^ $(CFLAGS)
 
 
 client.o: client.c client.h protocol.c protocol.h utils.h
 	gcc -c $(CFLAGS) $*.c
 
-
-server.o: server.c server.h protocol.c protocol.h utils.h
+server.o: server.c server.h protocol.c protocol.h msg_db.c msg_db.h utils.h
 	gcc -c $(CFLAGS) $*.c
 
 protocol.o: protocol.c protocol.h
+	gcc -c $(CFLAGS) $*.c
+
+msg_db.o: msg.c msg.h msg_db.c msg_db.h
+	gcc -c $(CFLAGS) $*.c
+
+msg.o: msg.c msg.h
 	gcc -c $(CFLAGS) $*.c
 
 #

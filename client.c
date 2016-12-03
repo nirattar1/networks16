@@ -75,10 +75,17 @@ void handle_connection (int socket)
 
 	//send test request.
 	ProtocolRequest req;
+	ProtocolRequest_Init(&req);
 	req._method = METHOD_COMPOSE;
 	sprintf (req._headers[0]._name, "To");
 	sprintf (req._headers[0]._value, "bla");
-	//void SendReqToSocket (int socket, const ProtocolRequest * req);
+	SendReqToSocket (socket, &req);
+
+	//send test request.
+	ProtocolRequest_Init(&req);
+	req._method = METHOD_GET;
+	sprintf (req._headers[0]._name, "mail_id");
+	sprintf (req._headers[0]._value, "3");
 	SendReqToSocket (socket, &req);
 
 }
