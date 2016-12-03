@@ -10,20 +10,22 @@ all: $(EXECUTABLES)
 clean:
 	-rm $(EXECUTABLES) $(O_FILES)
 
-client: client.o
+client: client.o protocol.o utils.o
 	gcc -o $@ $^ $(CFLAGS)
 
-server: server.o
+server: server.o protocol.o utils.o
 	gcc -o $@ $^ $(CFLAGS)
 
 
-client.o: client.c client.h utils.h
+client.o: client.c client.h protocol.c protocol.h utils.h
 	gcc -c $(CFLAGS) $*.c
 
 
-server.o: server.c server.h utils.h
+server.o: server.c server.h protocol.c protocol.h utils.h
 	gcc -c $(CFLAGS) $*.c
 
+protocol.o: protocol.c protocol.h
+	gcc -c $(CFLAGS) $*.c
 
 #
 #nim-server: server.o protocol.o utils.o

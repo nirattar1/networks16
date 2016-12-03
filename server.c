@@ -7,8 +7,9 @@
 
 #include "server.h"
 #include <stdlib.h>
+#include <string.h>
 #include "utils.h"
-
+#include "protocol.h"
 
 int main ()
 {
@@ -83,11 +84,26 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	//new connection
 	debug_print("%s\n", "new connection.");
 
+	//TODO change that
 	//send greeting to client
 	char msg_buf[GREET_MSG_BUFF_MAX_LEN];
 	strcpy(msg_buf, GREET_MSG);
-
 	send(conn, msg_buf, GREET_MSG_BUFF_MAX_LEN, 0);
+
+
+
+	//receive request from client.
+	ProtocolRequest req;
+	ProtocolRequest_Init(&req);
+	ReadReqFromSocket(conn, &req);
+
+	debug_print("req type:%d\n", req._method);
+	debug_print("req header 1 name: %s", req._headers[0]._name);
+	debug_print("req header 1 val: %s", req._headers[0]._value);
+	debug_print("req header 2 name: %s", req._headers[1]._name);
+	debug_print("req header 2 val: %s", req._headers[1]._value);
+
+	HandleRequest();
 
 	//close connection
 	debug_print("%s\n", "closing connection.");
@@ -96,9 +112,4 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 		handle_error("close connection failed.");
 	}
 
-}
-
-void handle_error (const char * msg)
-{
-	printf("%s", msg);
 }

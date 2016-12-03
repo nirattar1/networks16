@@ -6,7 +6,10 @@
  */
 
 #include "client.h"
+#include "protocol.h"
 #include <stdlib.h>
+#include <string.h>
+
 
 int main ()
 {
@@ -69,12 +72,15 @@ void handle_connection (int socket)
 	//display greeting message
 	printf("%s\n", msg_buf);
 
+
+	//send test request.
+	ProtocolRequest req;
+	req._method = METHOD_COMPOSE;
+	sprintf (req._headers[0]._name, "To");
+	sprintf (req._headers[0]._value, "bla");
+	//void SendReqToSocket (int socket, const ProtocolRequest * req);
+	SendReqToSocket (socket, &req);
+
 }
 
 
-
-
-void handle_error (const char * msg)
-{
-	printf("%s", msg);
-}

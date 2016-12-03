@@ -14,13 +14,29 @@
 //2. functionality to translate between protocol requests/replies
 //and mail message data structures.
 
+//all method names are 3 letters. (LGN, GET, ...)
+#define LEN_METHOD_NAME 3
 //longest header name is "password"
 #define MAX_HEADER_NAME_LENGTH 8
 //longest header value is in mail content field ("compose" method)
 #define MAX_HEADER_VALUE_LENGTH MAX_CONTENT
-//there can be maximum 3 headers ("compose" method)
+//maximum length of header in text
+#define MAX_HEADER_BUFF_LENGTH (MAX_HEADER_NAME_LENGTH + MAX_HEADER_VALUE_LENGTH + 3)
+//there can be maximum 3 headers in request OR reply ("compose" method req)
 #define MAX_NUM_HEADERS 3
 
+
+typedef struct ProtocolHeader
+{
+	char _name [MAX_HEADER_NAME_LENGTH];
+	char _value [MAX_HEADER_VALUE_LENGTH];
+} ProtocolHeader;
+
+//"CTOR"
+void ProtocolHeader_Init (ProtocolHeader * header);
+
+
+//REQUEST
 typedef enum {
 	METHOD_NULL,
 	METHOD_LOGIN,
@@ -30,11 +46,12 @@ typedef enum {
 	METHOD_COMPOSE
 } Req_Method;
 
-typedef struct ProtocolHeader
-{
-	char _name [MAX_HEADER_NAME_LENGTH];
-	char _value [MAX_HEADER_VALUE_LENGTH];
-} ProtocolHeader;
+
+//will take a method enum and a buffer, will write to buffer textual name of method.
+void MethodToString (Req_Method method, char * buff_method);
+Req_Method StringToMethod(const char * buff_method);
+
+
 
 typedef struct ProtocolRequest
 {
@@ -43,6 +60,9 @@ typedef struct ProtocolRequest
 	//headers
 	ProtocolHeader _headers [MAX_NUM_HEADERS];
 } ProtocolRequest;
+
+//"CTOR"
+void ProtocolRequest_Init (ProtocolRequest * req);
 
 
 //REPLY
@@ -53,5 +73,29 @@ typedef enum {
 	REPLY_STATUS_LOGIN_REQUIRED,
 	REPLY_STATUS_GEN_ERROR
 } Rep_Status;
+
+
+typedef struct ProtocolReply
+{
+	//reply status code
+	Rep_Status _status;
+	//reply headers
+	ProtocolHeader _headers [MAX_NUM_HEADERS];
+	//reply content
+} ProtocolReply;
+
+
+
+//will get a request struct, and a connection socket.
+//will send the appropriate request on the socket.
+void SendReqToSocket (int socket, const ProtocolRequest * req);
+
+//fill request struct based on data read from socket.
+void ReadReqFromSocket (int socket, ProtocolRequest * req);
+
+//will get a reply struct, and a connection socket.
+//will send the appropriate reply to the socket.
+void SendRepToSocket (int socket, const ProtocolReply * rep);
+
 
 #endif /* PROTOCOL_H_ */

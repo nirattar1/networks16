@@ -19,7 +19,6 @@
 #define DEFAULT_PORT 6423
 
 int setup_client();
-void handle_error (const char * msg);
 
 
 void handle_connection (int socket);

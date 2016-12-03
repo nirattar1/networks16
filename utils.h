@@ -23,7 +23,19 @@
 
 //will get a char pointer and its length.
 //will zero out all the chars up to length.
-void ZeroCharArr(char * arr, int length);
+void ZeroCharBuf(char * buf, int length);
+
+
+int sendall(int socket, char *buf, int *len);
+
+int recvall(int socket, char *buf, int *len);
+
+//read from socket to buffer until delimiter char was read,
+//or until max_len chars were read.
+int recv_until_delim(int socket, char *buf, char delim, int *max_len);
+
+
+void handle_error (const char * msg);
 
 
 #define GREET_MSG_BUFF_MAX_LEN 1000
