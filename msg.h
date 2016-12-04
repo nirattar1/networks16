@@ -50,6 +50,11 @@ void Message_Copy (MailMessage * to, const MailMessage * from);
 //returns: 1 on success. 0 if fail (if exceed maximum)
 int Message_AddRecipient (MailMessage * msg, const char * recipient);
 
+//gets username and message.
+//will return 1 if username is one of the message's recipients.
+//0 otherwise.
+int Message_MatchesRecipient (const MailMessage * msg, const char * recipient);
+
 //will write to text_buffer, a list of the messages recipients.
 //assume buffer is already allocated for enough space.
 void RecipientsToText (const MailMessage * msg, char * text_buffer);
@@ -57,7 +62,7 @@ void RecipientsToText (const MailMessage * msg, char * text_buffer);
 //read messages recipients list from text into message.
 //note: will modify text_buffer due to tokenizer.
 //recipients are divide by commas: "Moshe,David,..."
-void RecipientsFromText (MailMessage * msg, char * text_buffer);
+void RecipientsFromText (MailMessage * msg, const char * text_buffer);
 
 
 #endif /* MSG_H_ */

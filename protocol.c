@@ -55,7 +55,7 @@ void ProtocolHeader_Init (ProtocolHeader * header)
 }
 
 
-//functionality to add a header to reply. (based on value)
+//functionality to add a header to request. (based on value)
 void AddHeaderRequest (ProtocolRequest * req, const char * header_name,
 		const char * header_value)
 {
@@ -442,6 +442,25 @@ void MsgToReply(const MailMessage * msg, ProtocolReply * rep)
 }
 
 
+//add to .h!!
+void MsgToRequest(const MailMessage * msg, ProtocolRequest * req)
+{
+	//assuming valid, status was already turned to OK.
+
+	//fill all headers.
+	AddHeaderRequest (req, "From", msg->_from);
+
+	//write recipients
+	char buff_recipients[MAX_HEADER_VALUE_LENGTH];
+	ZeroCharBuf (buff_recipients, MAX_HEADER_VALUE_LENGTH);
+	RecipientsToText (msg, buff_recipients);
+	AddHeaderReply (req, "To", buff_recipients);
+
+	AddHeaderReply (req, "Subject", msg->_subject);
+	AddHeaderReply (req, "Text", msg->_content);
+}
+
+
 void MsgFromReply(MailMessage * msg, const ProtocolReply * rep)
 {
 	//assuming valid, status is OK.
@@ -473,6 +492,7 @@ void MsgFromReply(MailMessage * msg, const ProtocolReply * rep)
 		}
 		else if (strcmp(buff_header_name,"To")==0)
 		{
+			debug_print("%s\n", "reading recipients.");
 			//add multiple recipients
 			RecipientsFromText (msg, buff_header_value);
 		}

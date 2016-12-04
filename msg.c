@@ -7,7 +7,10 @@
 
 #include "utils.h"
 #include "msg.h"
+#include "protocol.h"
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 void Message_Init (MailMessage * msg)
 {
@@ -50,6 +53,27 @@ void Message_Copy (MailMessage * dest, const MailMessage * src)
 	strncpy(dest->_content, src->_content, MAX_CONTENT);
 }
 
+
+int Message_MatchesRecipient (const MailMessage * msg, const char * recipient)
+{
+	if (msg==NULL || recipient==NULL)
+	{
+		handle_error("null pointer Message_MatchesRecipient");
+		return 0;
+	}
+
+	//iterate on all of message's recipients
+	for (int i=0; i<msg->_num_recipients; i++)
+	{
+		//compare against current recipient
+		if (strcmp(msg->_to[i], recipient)==0)
+		{
+			//found user!
+			return 1;
+		}
+	}
+	return 0;
+}
 
 int Message_AddRecipient (MailMessage * msg, const char * recipient)
 {
@@ -99,7 +123,7 @@ void RecipientsToText (const MailMessage * msg, char * text_buffer)
 }
 
 
-void RecipientsFromText (MailMessage * msg, char * text_buffer)
+void RecipientsFromText (MailMessage * msg, const char * text_buffer)
 {
 	if (msg==NULL || text_buffer==NULL)
 	{
@@ -107,11 +131,20 @@ void RecipientsFromText (MailMessage * msg, char * text_buffer)
 		return;
 	}
 
+	debug_print("buffer to tokenize: %s\n", text_buffer);
+
+	//copy to local buffer to use strtok
+	char buff_tmp[MAX_HEADER_VALUE_LENGTH];//TODO don't be dependent in protocol
+	ZeroCharBuf(buff_tmp, MAX_HEADER_VALUE_LENGTH);
+	strcpy(buff_tmp, text_buffer);
+
 	//read recipient in tokens
-	char * token_recipient = strtok (text_buffer, ",");
+	char * token_recipient;
+	token_recipient = strtok (buff_tmp, ",");
 	while (token_recipient != NULL)
 	{
 		//add recipient
+		debug_print("token: %s\n", token_recipient);
 		int result = Message_AddRecipient (msg, token_recipient);
 		if (result==0) {return;};
 		token_recipient = strtok (NULL, ",");

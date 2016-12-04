@@ -96,11 +96,19 @@ void handle_connection (int socket)
 
 	//send test request.
 	//("COMPOSE" request)
+	MailMessage msg;
+	Message_Init(&msg);
+	strcpy(msg._subject,"I was sent!");
+	strcpy(msg._content,"wow this is great...");
+	Message_AddRecipient (&msg, "Yaniv");//TODO check return
+	Message_AddRecipient (&msg, "Naaman");
+	Message_AddRecipient (&msg, "Yorai");
+	//make request from message
 	ProtocolRequest_Init(&req);
 	req._method = METHOD_COMPOSE;
-	AddHeaderRequest(&req, "To", "Yaniv");
-	AddHeaderRequest(&req, "Subject", "I was sent!");
-	AddHeaderRequest(&req, "Text", "wow this is great...");
+	MsgToRequest(&msg, &req);
+
+	//send request
 	SendReqToSocket (socket, &req);
 
 	//read reply from socket
@@ -134,6 +142,7 @@ void ReplyHandle(ProtocolReply * rep, Req_Method method)
 			//handle message (print it)
 			debug_print("msg content:%s\n", msg._content);
 			debug_print("msg from:%s\n", msg._from);
+
 			debug_print("msg to:%s\n", msg._to[0]);
 			debug_print("msg subject:%s\n", msg._subject);
 		}

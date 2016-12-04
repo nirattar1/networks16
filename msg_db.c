@@ -109,8 +109,9 @@ int GetUserMailDbIndex (int mail_id, const char * user_id, const Mail_DB * db)
 	for (int i=0; i<db->_curr_size; i++)
 	{
 		//check if mail matches user
-		//TODO check from all recipients
-		if (strcmp(db->_msgs[i]._to[0], user_id)==0)
+		const MailMessage * curr_msg = &(db->_msgs[i]);
+
+		if (Message_MatchesRecipient(curr_msg, user_id)==1)
 		{
 			user_i++;
 		}

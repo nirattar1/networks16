@@ -110,6 +110,10 @@ int RepStatusToNum (const ProtocolReply * rep);
 //(used in "GET" method)
 void MsgToReply(const MailMessage * msg, ProtocolReply * rep);
 
+//gets a message and copies its data to the request object
+//(used by client "compose" method)
+void MsgToRequest(const MailMessage * msg, ProtocolRequest * req);
+
 //build mail message object based on reply object
 //(used in "GET" method)
 void MsgFromReply(MailMessage * msg, const ProtocolReply * rep);
