@@ -302,14 +302,14 @@ int GetExpectedNumHeaders_ForReq(Req_Method reqMethod)
 	return expected_num_headers;
 }
 
-//TODO check!
+
 int GetExpectedNumHeaders_ForRep(Req_Method reqMethod)
 {
 	int expected_num_headers = 0;
 	switch (reqMethod)
 	{
 		case METHOD_LOGIN:
-			expected_num_headers = 2;
+			expected_num_headers = 0;
 			break;
 		case METHOD_SHOW_INBOX:
 			expected_num_headers = 0;
@@ -318,10 +318,10 @@ int GetExpectedNumHeaders_ForRep(Req_Method reqMethod)
 			expected_num_headers = 4;
 			break;
 		case METHOD_DELETE:
-			expected_num_headers = 1;
+			expected_num_headers = 0;
 			break;
 		case METHOD_COMPOSE:
-			expected_num_headers = 3;
+			expected_num_headers = 0;
 			break;
 		default:
 			expected_num_headers = 0;

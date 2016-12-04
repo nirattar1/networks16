@@ -110,28 +110,28 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	int len = GREET_MSG_BUFF_MAX_LEN;
 	sendall(conn, msg_buf, &len);
 
-	//perform client login.
+	//TODO perform client login.
 	char curr_user [MAX_USERNAME];
 	ZeroCharBuf(curr_user, MAX_USERNAME);
 	strcpy (curr_user, "Moshe");
 
-	//read request from client.
-	ProtocolRequest req;
+	while(1)
+	{
+		//read request from client.
+		ProtocolRequest req;
 
-	//test - another req
-	ProtocolRequest_Init(&req);
-	ReadReqFromSocket(conn, &req);
+		//test - another req
+		ProtocolRequest_Init(&req);
+		ReadReqFromSocket(conn, &req);
 
-	debug_print("req type:%d\n", req._method);
-	debug_print("req header 1 name: %s", req._headers[0]._name);
-	debug_print("req header 1 val: %s", req._headers[0]._value);
-	debug_print("req header 2 name: %s", req._headers[1]._name);
-	debug_print("req header 2 val: %s", req._headers[1]._value);
+		debug_print("req type:%d\n", req._method);
+		//TODO Print header nicely
 
-	//handle user's request.
-	//will also return reply.
-	RequestDispatch(conn, &req, curr_user);
 
+		//handle user's request.
+		//will also return reply.
+		RequestDispatch(conn, &req, curr_user);
+	}
 
 	//close connection
 	debug_print("%s\n", "closing connection.");
@@ -150,13 +150,11 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 	//GET method
 	if (req->_method==METHOD_GET)
 	{
-		//we need to read the mail id from header.
-
+		//read the mail id from header.
 		if (strcmp(req->_headers[0]._name, "mail_id")!=0)
 		{
 			handle_error("could not get mail id field");
 		}
-
 		int mail_id = atoi(req->_headers[0]._value);
 
 		//get the correct mail of the user.
@@ -180,6 +178,18 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 		//send the reply over socket.
 		SendRepToSocket (socket, &rep);
 	}
+
+	//COMPOSE method
+	else if (req->_method==METHOD_COMPOSE)
+	{
+
+		//use MsgFromReq (need implement)
+
+		//add msg to DB.
+
+		//send error code.
+	}
+
 }
 
 

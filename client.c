@@ -77,14 +77,6 @@ void handle_connection (int socket)
 
 
 	//send test request.
-//	ProtocolRequest req;
-//	ProtocolRequest_Init(&req);
-//	req._method = METHOD_COMPOSE;
-//	sprintf (req._headers[0]._name, "To");
-//	sprintf (req._headers[0]._value, "bla");
-//	SendReqToSocket (socket, &req);
-
-	//send test request.
 	//("GET" request)
 	ProtocolRequest req;
 	ProtocolRequest_Init(&req);
@@ -100,6 +92,25 @@ void handle_connection (int socket)
 	//handle reply (based on request)
 	ReplyHandle(&rep, req._method);
 
+
+
+	//send test request.
+	//("COMPOSE" request)
+	ProtocolRequest req;
+	ProtocolRequest_Init(&req);
+	req._method = METHOD_COMPOSE;
+	AddHeaderRequest(&req, "To", "Moshe");
+	AddHeaderRequest(&req, "Subject", "I was sent!");
+	AddHeaderRequest(&req, "Text", "wow this is great...");
+	SendReqToSocket (socket, &req);
+
+	//read reply from socket
+	ProtocolReply rep;
+	ProtocolReply_Init(&rep);
+	ReadRepFromSocket(socket, &rep, req._method);
+
+	//handle reply (based on request)
+	ReplyHandle(&rep, req._method);
 
 }
 
@@ -132,6 +143,19 @@ void ReplyHandle(ProtocolReply * rep, Req_Method method)
 		{
 			handle_error("failure get method.");
 		}
+	}
+
+	else if (method==METHOD_COMPOSE)
+	{
+		if(rep->_status==REPLY_STATUS_OK)
+		{
+			;
+		}
+		else
+		{
+			handle_error("failure compose method.");
+		}
+
 	}
 }
 
