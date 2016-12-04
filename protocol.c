@@ -430,8 +430,13 @@ void MsgToReply(const MailMessage * msg, ProtocolReply * rep)
 
 	//fill all headers.
 	AddHeaderReply (rep, "From", msg->_from);
-	//TODO support multi recipients
-	AddHeaderReply (rep, "To", msg->_to[0]);
+
+	//write recipients
+	char buff_recipients[MAX_HEADER_VALUE_LENGTH];
+	ZeroCharBuf (buff_recipients, MAX_HEADER_VALUE_LENGTH);
+	RecipientsToText (msg, buff_recipients);
+	AddHeaderReply (rep, "To", buff_recipients);
+
 	AddHeaderReply (rep, "Subject", msg->_subject);
 	AddHeaderReply (rep, "Text", msg->_content);
 }
@@ -468,8 +473,8 @@ void MsgFromReply(MailMessage * msg, const ProtocolReply * rep)
 		}
 		else if (strcmp(buff_header_name,"To")==0)
 		{
-			//TODO multiple recipients
-			strcpy(msg->_to[0], buff_header_value);
+			//add multiple recipients
+			RecipientsFromText (msg, buff_header_value);
 		}
 		else if (strcmp(buff_header_name,"Subject")==0)
 		{
@@ -480,5 +485,56 @@ void MsgFromReply(MailMessage * msg, const ProtocolReply * rep)
 			strcpy(msg->_content, buff_header_value);
 		}
 	}
+
+}
+
+
+void MsgFromRequest_Server(MailMessage * msg, const ProtocolRequest * req,
+		const char * curr_user)
+{
+
+	//check for null
+	if (msg==NULL || req==NULL || curr_user==NULL)
+	{
+		handle_error("null pointer MsgFromRequest_Server");
+		return;
+	}
+
+	//get the data from headers.
+	//the headers are in certain order:
+	//To, Subject, Text
+	//Note: "From" field will be added based on active user!
+	//read one header at a time and update according to it.
+	for (int i=0; i<req->_num_headers; i++)
+	{
+		//get header name into buffer.
+		char buff_header_name[MAX_HEADER_NAME_LENGTH];
+		ZeroCharBuf(buff_header_name, MAX_HEADER_NAME_LENGTH);
+		strcpy(buff_header_name, req->_headers[i]._name);
+
+		//get header value into buffer.
+		char buff_header_value[MAX_HEADER_VALUE_LENGTH];
+		ZeroCharBuf(buff_header_value, MAX_HEADER_VALUE_LENGTH);
+		strcpy(buff_header_value, req->_headers[i]._value);
+
+		//copy from buffers to message.
+		if (strcmp(buff_header_name,"To")==0)
+		{
+			//multiple recipients
+			RecipientsFromText (msg, buff_header_value);
+		}
+		else if (strcmp(buff_header_name,"Subject")==0)
+		{
+			strcpy(msg->_subject, buff_header_value);
+		}
+		else if (strcmp(buff_header_name,"Text")==0)
+		{
+			strcpy(msg->_content, buff_header_value);
+		}
+	}
+
+	//add "From" field based on parameter.
+	strcpy(msg->_from, curr_user);
+
 
 }

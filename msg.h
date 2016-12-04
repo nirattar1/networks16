@@ -29,6 +29,9 @@ typedef struct MailMessage {
 	//there can be maximum of TOTAL_TO recipients.
 	char _to[TOTAL_TO][MAX_USERNAME];
 
+	//
+	int _num_recipients;
+
 	//subject
 	char _subject[MAX_SUBJECT];
 
@@ -42,5 +45,19 @@ void Message_Init (MailMessage * msg);
 
 //copy functionality between messages.
 void Message_Copy (MailMessage * to, const MailMessage * from);
+
+//will add new recipient to message.
+//returns: 1 on success. 0 if fail (if exceed maximum)
+int Message_AddRecipient (MailMessage * msg, const char * recipient);
+
+//will write to text_buffer, a list of the messages recipients.
+//assume buffer is already allocated for enough space.
+void RecipientsToText (const MailMessage * msg, char * text_buffer);
+
+//read messages recipients list from text into message.
+//note: will modify text_buffer due to tokenizer.
+//recipients are divide by commas: "Moshe,David,..."
+void RecipientsFromText (MailMessage * msg, char * text_buffer);
+
 
 #endif /* MSG_H_ */

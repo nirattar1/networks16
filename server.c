@@ -182,12 +182,31 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 	//COMPOSE method
 	else if (req->_method==METHOD_COMPOSE)
 	{
-
-		//use MsgFromReq (need implement)
+		//build a message object based on request.
+		MailMessage msg;
+		Message_Init(&msg);
+		MsgFromRequest_Server(&msg, req, curr_user);
 
 		//add msg to DB.
+		Mail_DB * db = GetServerDB();
+		int added = AddMail(&msg, db);
 
-		//send error code.
+		//create reply with appropriate error code.
+		ProtocolReply rep;
+		ProtocolReply_Init (&rep);
+		if (!added)
+		{
+			rep._status = REPLY_STATUS_GEN_ERROR;
+			debug_print("%s\n", "did not add mail message.");
+		}
+		else
+		{
+			debug_print("%s\n", "added mail message.");
+			rep._status = REPLY_STATUS_OK;
+		}
+
+		//send the reply over socket.
+		SendRepToSocket (socket, &rep);
 	}
 
 }

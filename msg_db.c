@@ -9,6 +9,7 @@
 #include "msg_db.h"
 #include <stdlib.h>
 #include <string.h>
+#include "utils.h"
 
 void Mail_DB_Init (Mail_DB * db)
 {
@@ -25,8 +26,8 @@ void Mail_DB_CreateTestData(Mail_DB * db)
 	MailMessage msg1;
 	Message_Init (&msg1);
 	strcpy (msg1._from, "Ayelet");
-	strcpy (msg1._to[0], "Nir");
-	strcpy (msg1._to[1], "Limon");
+	Message_AddRecipient(&msg1, "Nir");
+	Message_AddRecipient(&msg1, "Limon");
 	strcpy (msg1._subject, "I am subject");
 	strcpy (msg1._content, "Hi! example content");
 	AddMail(&msg1, db);
@@ -35,7 +36,7 @@ void Mail_DB_CreateTestData(Mail_DB * db)
 	MailMessage msg2;
 	Message_Init (&msg2);
 	strcpy (msg2._from, "Nir");
-	strcpy (msg2._to[0], "Moshe");
+	Message_AddRecipient(&msg2, "Moshe");
 	strcpy (msg2._subject, "subject 2");
 	strcpy (msg2._content, "blaaaaaaaa content 2");
 	AddMail(&msg2, db);
@@ -57,16 +58,35 @@ const MailMessage * GetMail(int mail_id, const char * user_id,
 	return found_msg;
 }
 
-void AddMail(const MailMessage * msg, Mail_DB * db)
+int AddMail(const MailMessage * msg, Mail_DB * db)
 {
+	//check null ptrs.
+	if (msg==NULL || db==NULL)
+	{
+		debug_print("%s\n", "null ptr in AddMail.");
+		return 0;
+	}
+
 	//go to the storage in the next available count.
 	int available_index = db->_curr_size;
 
-	//copy info
-	Message_Copy(&(db->_msgs[available_index]), msg);
+	//check if already reached full capacity of db.
+	if (available_index>=MAXMAILS)
+	{
+		return 0;
+	}
+	else
+	{
+		//enough space on db.
 
-	//increment msg count
-	db->_curr_size++;
+		//copy info
+		Message_Copy(&(db->_msgs[available_index]), msg);
+
+		//increment msg count
+		db->_curr_size++;
+
+		return 1;
+	}
 
 }
 

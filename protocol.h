@@ -20,7 +20,7 @@
 #define MAX_HEADER_NAME_LENGTH 8
 //longest header value is in mail content field ("compose" method)
 #define MAX_HEADER_VALUE_LENGTH MAX_CONTENT
-//maximum length of header in text
+//maximum length of header when sent (name, value, ' :' and '\n')
 #define MAX_HEADER_BUFF_LENGTH (MAX_HEADER_NAME_LENGTH + MAX_HEADER_VALUE_LENGTH + 3)
 //there can be maximum 4 headers in request OR reply ("get" method reply)
 #define MAX_NUM_HEADERS 4
@@ -113,6 +113,13 @@ void MsgToReply(const MailMessage * msg, ProtocolReply * rep);
 //build mail message object based on reply object
 //(used in "GET" method)
 void MsgFromReply(MailMessage * msg, const ProtocolReply * rep);
+
+
+//build mail message object from request.
+//(used by server for "compose")
+//the "From" field of the message will be based on current user parameter.
+void MsgFromRequest_Server(MailMessage * msg, const ProtocolRequest * req,
+		const char * curr_user);
 
 
 //will get a request struct, and a connection socket.

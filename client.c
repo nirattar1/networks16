@@ -96,16 +96,14 @@ void handle_connection (int socket)
 
 	//send test request.
 	//("COMPOSE" request)
-	ProtocolRequest req;
 	ProtocolRequest_Init(&req);
 	req._method = METHOD_COMPOSE;
-	AddHeaderRequest(&req, "To", "Moshe");
+	AddHeaderRequest(&req, "To", "Yaniv");
 	AddHeaderRequest(&req, "Subject", "I was sent!");
 	AddHeaderRequest(&req, "Text", "wow this is great...");
 	SendReqToSocket (socket, &req);
 
 	//read reply from socket
-	ProtocolReply rep;
 	ProtocolReply_Init(&rep);
 	ReadRepFromSocket(socket, &rep, req._method);
 

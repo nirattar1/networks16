@@ -38,8 +38,9 @@ const MailMessage * GetMail(int mail_id, const char * user_id,
 		const Mail_DB * db);
 
 //will get a mail message and copy it to the database.
-//database logical size will grow.
-void AddMail(const MailMessage * msg, Mail_DB * db);
+//will increment the database logical size .
+//returns - 1 if succeded, 0 if failed (may be due to full database)
+int AddMail(const MailMessage * msg, Mail_DB * db);
 
 //loop over DB. Out of all messages sent to user user_id,
 //find the message in index "mail_id" (relative to that user).
