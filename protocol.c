@@ -227,9 +227,10 @@ void SendRepToSocket (int socket, const ProtocolReply * rep)
 	int len = STATUS_STRING_MAX_LENGTH;	//TODO support status string
 	buff_status[len] = '\n';
 	len++;
-	debug_print("sending: %s\n", buff_status);
+	debug_print("sending: %.*s\n", (STATUS_STRING_MAX_LENGTH + 1), buff_status);
 	sendall(socket, buff_status, &len);
 
+	debug_print("%s\n", "starting headers");
 	//send request headers.
 	//loop over all headers and send them
 	for (int i=0; i<rep->_num_headers; i++)
@@ -396,4 +397,48 @@ void MsgToReply(const MailMessage * msg, ProtocolReply * rep)
 	AddHeaderReply (rep, "To", msg->_to[0]);
 	AddHeaderReply (rep, "Subject", msg->_subject);
 	AddHeaderReply (rep, "Text", msg->_content);
+}
+
+
+void MsgFromReply(MailMessage * msg, const ProtocolReply * rep)
+{
+	//assuming valid, status is OK.
+	if (msg==NULL || rep==NULL)
+	{
+		handle_error("null pointer");
+		return;
+	}
+
+	//get the data from headers.
+	//the headers are in certain order:
+	//From, To, Subject, Text
+	//read one header at a time and update according to it.
+	for (int i=0; i<rep->_num_headers; i++)
+	{
+		//get header name into buffer.
+		char buff_header_name[MAX_HEADER_NAME_LENGTH];
+		strcpy(buff_header_name, rep->_headers[i]._name);
+		//get header value into buffer.
+		char buff_header_value[MAX_HEADER_VALUE_LENGTH];
+		strcpy(buff_header_value, rep->_headers[i]._value);
+
+		if (strcmp(buff_header_name,"From")==0)
+		{
+			strcpy(msg->_from, buff_header_value);
+		}
+		else if (strcmp(buff_header_name,"To")==0)
+		{
+			//TODO multiple recipients
+			strcpy(msg->_to[0], buff_header_value);
+		}
+		else if (strcmp(buff_header_name,"Subject")==0)
+		{
+			strcpy(msg->_subject, buff_header_value);
+		}
+		else if (strcmp(buff_header_name,"Text")==0)
+		{
+			strcpy(msg->_content, buff_header_value);
+		}
+	}
+
 }

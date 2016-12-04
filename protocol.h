@@ -22,8 +22,8 @@
 #define MAX_HEADER_VALUE_LENGTH MAX_CONTENT
 //maximum length of header in text
 #define MAX_HEADER_BUFF_LENGTH (MAX_HEADER_NAME_LENGTH + MAX_HEADER_VALUE_LENGTH + 3)
-//there can be maximum 3 headers in request OR reply ("compose" method req)
-#define MAX_NUM_HEADERS 3
+//there can be maximum 4 headers in request OR reply ("get" method reply)
+#define MAX_NUM_HEADERS 4
 
 
 typedef struct ProtocolHeader

@@ -87,7 +87,7 @@ void handle_connection (int socket)
 	ProtocolRequest_Init(&req);
 	req._method = METHOD_GET;
 	sprintf (req._headers[0]._name, "mail_id");
-	sprintf (req._headers[0]._value, "3");
+	sprintf (req._headers[0]._value, "1");
 	SendReqToSocket (socket, &req);
 
 	//read reply from socket
@@ -95,18 +95,38 @@ void handle_connection (int socket)
 	ProtocolReply_Init(&rep);
 	ReadRepFromSocket(socket, &rep, req._method);
 
-	//construct msg object from reply.
-	MailMessage msg;
-	Message_Init(&msg);
-	MsgFromReply(&msg, &rep);
-
-	//handle message (print it)
-	debug_print("msg content:%d\n", msg._content);
-	debug_print("msg from:%d\n", msg._from);
-	debug_print("msg to:%d\n", msg._to[0]);
-	debug_print("msg subject:%d\n", msg._subject);
+	//handle reply (based on request)
+	ReplyHandle(&rep, req._method);
 
 
 }
 
+
+void ReplyHandle(ProtocolReply * rep, Req_Method method)
+{
+
+	//handle the reply based on the original request
+	if (method==METHOD_GET)
+	{
+		//user asked for a mail message.
+
+		if(rep->_status==REPLY_STATUS_OK)
+		{
+			//construct msg object from reply.
+			MailMessage msg;
+			Message_Init(&msg);
+			MsgFromReply(&msg, rep);
+
+			//handle message (print it)
+			debug_print("msg content:%s\n", msg._content);
+			debug_print("msg from:%s\n", msg._from);
+			debug_print("msg to:%s\n", msg._to[0]);
+			debug_print("msg subject:%s\n", msg._subject);
+		}
+		else
+		{
+			handle_error("failure get method.");
+		}
+	}
+}
 

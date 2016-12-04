@@ -150,10 +150,11 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 	{
 		//we need to read the mail id from header.
 
-		if (!strcmp(req->_headers[0]._name, "mail_id"))
+		if (strcmp(req->_headers[0]._name, "mail_id")!=0)
 		{
 			handle_error("could not get mail id field");
 		}
+
 		int mail_id = atoi(req->_headers[0]._value);
 
 		//get the correct mail of the user.
@@ -166,9 +167,11 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 		if (found_mail==NULL)
 		{
 			rep._status = REPLY_STATUS_GEN_ERROR;
+			debug_print("%s\n", "did not find mail message.");
 		}
 		else
 		{
+			debug_print("%s\n", "found mail message.");
 			rep._status = REPLY_STATUS_OK;
 			MsgToReply(found_mail, &rep);
 		}

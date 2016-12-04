@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "utils.h"
+#include "protocol.h"
 
 #define DEFAULT_PORT 6423
 
@@ -23,6 +24,8 @@ int setup_client();
 
 void handle_connection (int socket);
 
+//functionality to handle with reply.
+void ReplyHandle(ProtocolReply * rep, Req_Method method);
 
 
 #endif /* CLIENT_H_ */

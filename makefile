@@ -10,12 +10,11 @@ all: $(EXECUTABLES)
 clean:
 	-rm $(EXECUTABLES) $(O_FILES)
 
-client: client.o protocol.o utils.o
+client: client.o protocol.o utils.o msg.o
 	gcc -o $@ $^ $(CFLAGS)
 
 server: server.o protocol.o utils.o msg.o msg_db.o
 	gcc -o $@ $^ $(CFLAGS)
-
 
 client.o: client.c client.h protocol.c protocol.h utils.h
 	gcc -c $(CFLAGS) $*.c
