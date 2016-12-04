@@ -67,7 +67,10 @@ void handle_connection (int socket)
 
 	//first read greeting from client.
 	char msg_buf[GREET_MSG_BUFF_MAX_LEN];
-	recv(socket, msg_buf, GREET_MSG_BUFF_MAX_LEN, 0);
+	ZeroCharBuf(msg_buf, GREET_MSG_BUFF_MAX_LEN);
+	//TODO replace to protocol message
+	int len = GREET_MSG_BUFF_MAX_LEN;
+	recvall(socket, msg_buf, &len);
 
 	//display greeting message
 	printf("%s\n", msg_buf);
@@ -86,8 +89,7 @@ void handle_connection (int socket)
 	ProtocolRequest req;
 	ProtocolRequest_Init(&req);
 	req._method = METHOD_GET;
-	sprintf (req._headers[0]._name, "mail_id");
-	sprintf (req._headers[0]._value, "1");
+	AddHeaderRequest(&req, "mail_id", "1");
 	SendReqToSocket (socket, &req);
 
 	//read reply from socket
@@ -104,6 +106,9 @@ void handle_connection (int socket)
 
 void ReplyHandle(ProtocolReply * rep, Req_Method method)
 {
+
+	debug_print("%s\n", "handling reply.");
+
 
 	//handle the reply based on the original request
 	if (method==METHOD_GET)

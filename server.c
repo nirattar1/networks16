@@ -102,11 +102,13 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	//new connection
 	debug_print("%s\n", "new connection.");
 
-	//TODO change that
+	//TODO change to protocol messages
 	//send greeting to client
 	char msg_buf[GREET_MSG_BUFF_MAX_LEN];
+	ZeroCharBuf(msg_buf, GREET_MSG_BUFF_MAX_LEN);
 	strcpy(msg_buf, GREET_MSG);
-	send(conn, msg_buf, GREET_MSG_BUFF_MAX_LEN, 0);
+	int len = GREET_MSG_BUFF_MAX_LEN;
+	sendall(conn, msg_buf, &len);
 
 	//perform client login.
 	char curr_user [MAX_USERNAME];

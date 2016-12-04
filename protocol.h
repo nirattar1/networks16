@@ -59,6 +59,8 @@ typedef struct ProtocolRequest
 	Req_Method _method;
 	//headers
 	ProtocolHeader _headers [MAX_NUM_HEADERS];
+	//number of current headers.
+	int _num_headers;
 } ProtocolRequest;
 
 //"CTOR"
@@ -88,7 +90,9 @@ typedef struct ProtocolReply
 
 void ProtocolReply_Init (ProtocolReply * rep);
 
-
+//functionality to add a header to request. (based on value)
+void AddHeaderRequest (ProtocolRequest * req, const char * header_name,
+		const char * header_value);
 //functionality to add a header to reply. (based on value)
 void AddHeaderReply (ProtocolReply * rep, const char * header_name,
 		const char * header_value);
