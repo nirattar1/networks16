@@ -74,19 +74,38 @@ void handle_connection (int socket)
 
 
 	//send test request.
-	ProtocolRequest req;
-	ProtocolRequest_Init(&req);
-	req._method = METHOD_COMPOSE;
-	sprintf (req._headers[0]._name, "To");
-	sprintf (req._headers[0]._value, "bla");
-	SendReqToSocket (socket, &req);
+//	ProtocolRequest req;
+//	ProtocolRequest_Init(&req);
+//	req._method = METHOD_COMPOSE;
+//	sprintf (req._headers[0]._name, "To");
+//	sprintf (req._headers[0]._value, "bla");
+//	SendReqToSocket (socket, &req);
 
 	//send test request.
+	//("GET" request)
+	ProtocolRequest req;
 	ProtocolRequest_Init(&req);
 	req._method = METHOD_GET;
 	sprintf (req._headers[0]._name, "mail_id");
 	sprintf (req._headers[0]._value, "3");
 	SendReqToSocket (socket, &req);
+
+	//read reply from socket
+	ProtocolReply rep;
+	ProtocolReply_Init(&rep);
+	ReadRepFromSocket(socket, &rep, req._method);
+
+	//construct msg object from reply.
+	MailMessage msg;
+	Message_Init(&msg);
+	MsgFromReply(&msg, &rep);
+
+	//handle message (print it)
+	debug_print("msg content:%d\n", msg._content);
+	debug_print("msg from:%d\n", msg._from);
+	debug_print("msg to:%d\n", msg._to[0]);
+	debug_print("msg subject:%d\n", msg._subject);
+
 
 }
 

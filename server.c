@@ -29,6 +29,9 @@ int main ()
 	//initialize msgs DB.
 	Mail_DB_Init(&_server_db);
 
+	//create test data (to be removed)
+	Mail_DB_CreateTestData(&_server_db);
+
 	//create socket, bind and listen.
 	int sfd = setup_server();
 
@@ -107,21 +110,11 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 
 	//perform client login.
 	char curr_user [MAX_USERNAME];
+	ZeroCharBuf(curr_user, MAX_USERNAME);
 	strcpy (curr_user, "Moshe");
 
 	//read request from client.
 	ProtocolRequest req;
-	ProtocolRequest_Init(&req);
-	ReadReqFromSocket(conn, &req);
-
-	debug_print("req type:%d\n", req._method);
-	debug_print("req header 1 name: %s", req._headers[0]._name);
-	debug_print("req header 1 val: %s", req._headers[0]._value);
-	debug_print("req header 2 name: %s", req._headers[1]._name);
-	debug_print("req header 2 val: %s", req._headers[1]._value);
-
-	//handle user's request.
-	//HandleRequest(&req);
 
 	//test - another req
 	ProtocolRequest_Init(&req);
@@ -134,6 +127,7 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 	debug_print("req header 2 val: %s", req._headers[1]._value);
 
 	//handle user's request.
+	//will also return reply.
 	RequestDispatch(conn, &req, curr_user);
 
 
@@ -149,7 +143,7 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 
 void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr_user)
 {
-	int expected_num_headers = GetExpectedNumHeaders(req);
+	int expected_num_headers = GetExpectedNumHeaders_ForReq(req->_method);
 
 	//GET method
 	if (req->_method==METHOD_GET)

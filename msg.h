@@ -40,4 +40,7 @@ typedef struct MailMessage {
 //"CTOR" for message struct. will zero all fields.
 void Message_Init (MailMessage * msg);
 
+//copy functionality between messages.
+void Message_Copy (MailMessage * to, const MailMessage * from);
+
 #endif /* MSG_H_ */

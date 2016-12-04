@@ -15,6 +15,29 @@ void Mail_DB_Init (Mail_DB * db)
 	{
 		Message_Init(&(db->_msgs[i]));
 	}
+
+	db->_curr_size = 0;
+}
+
+void Mail_DB_CreateTestData(Mail_DB * db)
+{
+	MailMessage msg1;
+	MailMessage_Init (msg1);
+	strcpy (msg1._from, "Ayelet");
+	strcpy (msg1._to[0], "Nir");
+	strcpy (msg1._to[1], "Limon");
+	strcpy (msg1._subject, "I am subject");
+	strcpy (msg1._content, "Hi! example content");
+	AddMail(&msg1, db);
+
+
+	MailMessage msg2;
+	MailMessage_Init (msg2);
+	strcpy (msg2._from, "Nir");
+	strcpy (msg2._to[0], "Yossi");
+	strcpy (msg2._subject, "subject 2");
+	strcpy (msg2._content, "blaaaaaaaa content 2");
+	AddMail(&msg2, db);
 }
 
 const MailMessage * GetMail(int mail_id, const char * user_id,
@@ -31,6 +54,19 @@ const MailMessage * GetMail(int mail_id, const char * user_id,
 	}
 
 	return found_msg;
+}
+
+void AddMail(const MailMessage * msg, Mail_DB * db)
+{
+	//go to the storage in the next available count.
+	int available_index = db->_curr_size;
+
+	//copy info
+	Message_Copy(&(db->_msgs[available_index]), msg);
+
+	//increment msg count
+	db->_curr_size++;
+
 }
 
 

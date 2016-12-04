@@ -12,23 +12,34 @@
 
 #define MAXMAILS 32000
 
+
 typedef struct Mail_DB
 {
-
+	//a buffer that stores all messages on server.
 	MailMessage _msgs [MAXMAILS];
 
+	//will hold the number of messages currently on server.
+	//deleted messages are also included in this count.
+	int _curr_size;
 
 } Mail_DB;
-
 
 
 //CTOR for mail db.
 void Mail_DB_Init (Mail_DB * db);
 
+//for test
+void Mail_DB_CreateTestData(Mail_DB * db);
+
+
 //get a specific mail message of user.
 //return a pointer to a message, null if not found.
 const MailMessage * GetMail(int mail_id, const char * user_id,
 		const Mail_DB * db);
+
+//will get a mail message and copy it to the database.
+//database logical size will grow.
+void AddMail(const MailMessage * msg, Mail_DB * db);
 
 //loop over DB. Out of all messages sent to user user_id,
 //find the message in index "mail_id" (relative to that user).

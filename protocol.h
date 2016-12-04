@@ -93,6 +93,11 @@ void ProtocolReply_Init (ProtocolReply * rep);
 void AddHeaderReply (ProtocolReply * rep, const char * header_name,
 		const char * header_value);
 
+//determine how many headers will be in REQUEST, based on req. method
+int GetExpectedNumHeaders_ForReq(Req_Method reqMethod);
+//determine how many headers will be in REPLY, based on req. method
+int GetExpectedNumHeaders_ForRep(Req_Method reqMethod);
+
 //will take a reply and return its status in number.
 //return -1 if status or request was not defined.
 int RepStatusToNum (const ProtocolReply * rep);
@@ -101,16 +106,28 @@ int RepStatusToNum (const ProtocolReply * rep);
 //(used in "GET" method)
 void MsgToReply(const MailMessage * msg, ProtocolReply * rep);
 
+//build mail message object based on reply object
+//(used in "GET" method)
+void MsgFromReply(MailMessage * msg, const ProtocolReply * rep);
+
+
 //will get a request struct, and a connection socket.
 //will send the appropriate request on the socket.
+//for client send
 void SendReqToSocket (int socket, const ProtocolRequest * req);
 
 //fill request struct based on data read from socket.
+//for server receive
 void ReadReqFromSocket (int socket, ProtocolRequest * req);
 
 //will get a reply struct, and a connection socket.
 //will send the appropriate reply to the socket.
+//for server send
 void SendRepToSocket (int socket, const ProtocolReply * rep);
+
+//read reply from socket. (for client receive)
+//will also receive the method of the originating request.
+void ReadRepFromSocket (int socket, ProtocolReply * rep, Req_Method reqMethod);
 
 
 #endif /* PROTOCOL_H_ */

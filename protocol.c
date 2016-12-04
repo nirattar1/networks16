@@ -85,6 +85,23 @@ int RepStatusToNum (const ProtocolReply * rep)
 	}
 }
 
+Rep_Status NumToRepStatus (int status)
+{
+	switch (status)
+	{
+	case 200:
+		return REPLY_STATUS_OK;
+	case 401:
+		return REPLY_STATUS_UNAUTHORIZED;
+	case 999:
+		return REPLY_STATUS_LOGIN_REQUIRED;
+	case 500:
+		return REPLY_STATUS_GEN_ERROR;
+	default:
+		return REPLY_STATUS_NULL;
+	}
+}
+
 //will take a method enum and a buffer, will write to buffer textual name of method.
 void MethodToString (Req_Method method, char * buff_method)
 {
@@ -231,10 +248,10 @@ void SendRepToSocket (int socket, const ProtocolReply * rep)
 
 }
 
-int GetExpectedNumHeaders(ProtocolRequest* req)
+int GetExpectedNumHeaders_ForReq(Req_Method reqMethod)
 {
 	int expected_num_headers = 0;
-	switch (req->_method)
+	switch (reqMethod)
 	{
 		case METHOD_LOGIN:
 			expected_num_headers = 2;
@@ -244,6 +261,33 @@ int GetExpectedNumHeaders(ProtocolRequest* req)
 			break;
 		case METHOD_GET:
 			expected_num_headers = 1;
+			break;
+		case METHOD_DELETE:
+			expected_num_headers = 1;
+			break;
+		case METHOD_COMPOSE:
+			expected_num_headers = 3;
+			break;
+		default:
+			expected_num_headers = 0;
+		}
+	return expected_num_headers;
+}
+
+//TODO check!
+int GetExpectedNumHeaders_ForRep(Req_Method reqMethod)
+{
+	int expected_num_headers = 0;
+	switch (reqMethod)
+	{
+		case METHOD_LOGIN:
+			expected_num_headers = 2;
+			break;
+		case METHOD_SHOW_INBOX:
+			expected_num_headers = 0;
+			break;
+		case METHOD_GET:
+			expected_num_headers = 4;
 			break;
 		case METHOD_DELETE:
 			expected_num_headers = 1;
@@ -270,7 +314,7 @@ void ReadReqFromSocket (int socket, ProtocolRequest * req)
 	recv(socket, &c_buff, 1, 0);
 
 	//expect to see req headers based on method.
-	int expected_num_headers = GetExpectedNumHeaders(req);
+	int expected_num_headers = GetExpectedNumHeaders_ForReq(req->_method);
 
 	//read req headers.
 	for (int i=0; i<expected_num_headers; i++)
@@ -288,10 +332,58 @@ void ReadReqFromSocket (int socket, ProtocolRequest * req)
 		recv_until_delim(socket, req->_headers[i]._value, '\n', &len);
 	}
 
-
 }
 
 
+
+void ReadRepFromSocket (int socket, ProtocolReply * rep, Req_Method reqMethod)
+{
+
+	if (socket==0 || rep==NULL)
+	{
+		handle_error("receive reply error");
+	}
+
+	//read reply status (number). assuming 3 digit number.
+	//TODO support status string
+	char buff_status[STATUS_STRING_MAX_LENGTH];
+	int len = STATUS_STRING_MAX_LENGTH;
+	int n = recvall(socket, buff_status, &len);
+	int status_num=0;
+	sscanf(buff_status, "%d", &status_num);
+	rep->_status = NumToRepStatus(status_num);
+
+	//read newline
+	char c_buff;
+	len = 1;
+	recv_until_delim(socket, &c_buff, '\n', &len);
+
+	//expect to see req headers based on request's method.
+	int expected_num_headers = GetExpectedNumHeaders_ForRep(reqMethod);
+
+	//read req headers.
+	for (int i=0; i<expected_num_headers; i++)
+	{
+		//read header name
+		len = MAX_HEADER_NAME_LENGTH;
+		char buff_header_name[MAX_HEADER_NAME_LENGTH];
+		recv_until_delim(socket, buff_header_name, ':', &len);
+
+		//read space
+		len = 1;
+		recv_until_delim(socket, &c_buff, ' ', &len);
+
+		//read header value
+		len = MAX_HEADER_VALUE_LENGTH;
+		char buff_header_value[MAX_HEADER_VALUE_LENGTH];
+		recv_until_delim(socket, buff_header_value, '\n', &len);
+
+		//add header to reply object.
+		AddHeaderReply(rep, buff_header_name, buff_header_value);
+	}
+
+	//now reply object has data.
+}
 
 
 void MsgToReply(const MailMessage * msg, ProtocolReply * rep)
