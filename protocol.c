@@ -329,12 +329,19 @@ int GetExpectedNumHeaders_ForRep(Req_Method reqMethod)
 
 void ReadReqFromSocket (int socket, ProtocolRequest * req)
 {
+
+	debug_print("%s\n", "started ReadReqFromSocket.");
+
+
 	//read method.
 	char buff_method[LEN_METHOD_NAME+1];
 	ZeroCharBuf(buff_method, LEN_METHOD_NAME+1);
 	int len = LEN_METHOD_NAME;
 	int n = recvall(socket, buff_method, &len);
 	req->_method = StringToMethod(buff_method);
+
+	debug_print("received method %s\n", buff_method);
+
 
 	//read newline
 	char c_buff=0;
@@ -359,6 +366,8 @@ void ReadReqFromSocket (int socket, ProtocolRequest * req)
 		len = MAX_HEADER_VALUE_LENGTH;
 		recv_until_delim(socket, req->_headers[i]._value, '\n', &len);
 	}
+
+	debug_print("%s\n", "end ReadReqFromSocket.");
 
 }
 

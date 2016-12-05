@@ -148,6 +148,10 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 	//GET method
 	if (req->_method==METHOD_GET)
 	{
+
+		debug_print("%s\n", "handling msg get.");
+
+
 		//read the mail id from header.
 		if (strcmp(req->_headers[0]._name, "mail_id")!=0)
 		{
@@ -180,6 +184,8 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 	//COMPOSE method
 	else if (req->_method==METHOD_COMPOSE)
 	{
+		debug_print("%s\n", "handling msg compose.");
+
 		//build a message object based on request.
 		MailMessage msg;
 		Message_Init(&msg);
@@ -210,6 +216,8 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 	//SHOW_INBOX method
 	else if (req->_method==METHOD_SHOW_INBOX)
 	{
+		debug_print("%s\n", "handling msg show inbox.");
+
 		//create reply with appropriate error code.
 		ProtocolReply rep;
 		ProtocolReply_Init (&rep);

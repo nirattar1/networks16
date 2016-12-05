@@ -10,7 +10,7 @@ all: $(EXECUTABLES)
 clean:
 	-rm $(EXECUTABLES) $(O_FILES)
 
-client: client.o protocol.o utils.o msg.o
+client: client.o protocol.o utils.o msg.o console_ui.o
 	gcc -o $@ $^ $(CFLAGS)
 
 server: server.o protocol.o utils.o msg.o msg_db.o
@@ -29,6 +29,9 @@ msg_db.o: msg.c msg.h msg_db.c msg_db.h utils.h
 	gcc -c $(CFLAGS) $*.c
 
 msg.o: msg.c msg.h protocol.c protocol.h
+	gcc -c $(CFLAGS) $*.c
+
+console_ui.o: console_ui.c console_ui.h
 	gcc -c $(CFLAGS) $*.c
 
 #

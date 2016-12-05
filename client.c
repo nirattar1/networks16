@@ -7,9 +7,11 @@
 
 #include "client.h"
 #include "protocol.h"
+#include "console_ui.h"
 #include <stdlib.h>
 #include <string.h>
 
+static void Test_SendTestReqs(int socket);
 
 int main ()
 {
@@ -75,7 +77,19 @@ void handle_connection (int socket)
 	//display greeting message
 	printf("%s\n", msg_buf);
 
+	//perform login
 
+	//read and performs loop of commands from user.
+	//will send to socket.
+	//Menu_ClientReadAndDoCommands(socket);
+
+
+	//send test requests
+	Test_SendTestReqs(socket);
+}
+
+static void Test_SendTestReqs(int socket)
+{
 	//send test request.
 	//("GET" request)
 	ProtocolRequest req;
@@ -133,9 +147,7 @@ void handle_connection (int socket)
 
 	//handle reply (based on request)
 	ReplyHandle(socket, &rep, req._method);
-
 }
-
 
 void ReplyHandle(int socket, ProtocolReply * rep, Req_Method method)
 {
@@ -193,7 +205,7 @@ void ReplyHandle(int socket, ProtocolReply * rep, Req_Method method)
 		}
 		else
 		{
-			handle_error("failure compose method.");
+			handle_error("failure show_inbox method.");
 		}
 
 	}
