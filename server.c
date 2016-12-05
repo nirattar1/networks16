@@ -290,44 +290,47 @@ void handle_connection (int conn, struct sockaddr_in * client_addr,
 	}
 
 	//username
-	char * curr_user = req._headers[0]._value;
+	char * tmp_user = req._headers[0]._value;
 	//password
-	char * curr_password = req._headers[1]._value;
+	char * tmp_password = req._headers[1]._value;
 
 	//match user password against user db
-	int login_result = UsersDB_IsMatchLogin(users_db, curr_user, curr_password);
+	int login_result = UsersDB_IsMatchLogin(users_db, tmp_user, tmp_password);
 
 	//create reply with appropriate error code.
 	ProtocolReply rep;
 	ProtocolReply_Init (&rep);
 
-	if (login_result==1)
-	{
-		rep._status = REPLY_STATUS_OK;
-		debug_print("user login %s was successful.\n", curr_user);
-	}
-	else
+	if (login_result!=1)
 	{
 		rep._status = REPLY_STATUS_GEN_ERROR;
-		debug_print("error. user login failed. user: %s, password: %s\n", curr_user, curr_password);
+		debug_print("error. user login failed. user: %s, password: %s\n", tmp_user, tmp_password);
+		//send the reply over socket.
+		SendRepToSocket (conn, &rep);
+
+		//close connection
+		debug_print("%s\n", "closing connection.");
+		if (close(conn))	//should return zero on success
+		{
+			handle_error("close connection failed.");
+		}
+		return;
 	}
 
-	//send the reply over socket.
-	SendRepToSocket (socket, &rep);
+	//if reached here then successful login.
+	//save logged-in user to memory.
+	char curr_user [MAX_USERNAME];
+	ZeroCharBuf(curr_user, MAX_USERNAME);
+	strcpy (curr_user, tmp_user);
+	debug_print("user login %s was successful.\n", tmp_user);
+
+	//send login reply.
+	rep._status = REPLY_STATUS_OK;
+	SendRepToSocket (conn, &rep);
 
 
-	//
-	//	char curr_user [MAX_USERNAME];
-	//	ZeroCharBuf(curr_user, MAX_USERNAME);
-	//	strcpy (curr_user, "Esther");
-	//	char curr_password [MAX_PASSWORD];
-	//	ZeroCharBuf(curr_password, MAX_PASSWORD);
-	//	strcpy (curr_password, "abcddddde");
-
-
-
-
-	while(1)
+	//handle the user's session.
+	while(login_result==1)
 	{
 		//read request from client.
 		ProtocolRequest req;

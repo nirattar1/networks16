@@ -11,9 +11,9 @@
 //protocol/server limits
 
 #define TOTAL_TO 20 //maximum recipents
-#define MAX_USERNAME 50
-#define MAX_PASSWORD 50
-#define MAX_SUBJECT 100
+#define MAX_USERNAME 60
+#define MAX_PASSWORD 60
+#define MAX_SUBJECT 110
 #define MAX_CONTENT 2010
 
 //provide data structures and functionality for a mail message,

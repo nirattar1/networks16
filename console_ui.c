@@ -103,10 +103,11 @@ int Menu_ClientLoginReadAndSend(int socket)
 	if(rep._status==REPLY_STATUS_OK)
 	{
 		//we are logged in
+		printf("%s\n", "Connected to server");
 	}
 	else
 	{
-		handle_error("failure to login.");
+		handle_error("failure to login.\n");
 		exit(1);
 	}
 

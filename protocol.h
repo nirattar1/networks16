@@ -30,11 +30,11 @@
 //longest header value is in mail content field ("compose" method)
 #define MAX_HEADER_VALUE_LENGTH MAX_CONTENT
 //maximum length of header when sent (name, value, ' :' and '\n')
-#define MAX_HEADER_BUFF_LENGTH (MAX_HEADER_NAME_LENGTH + MAX_HEADER_VALUE_LENGTH + 3)
+#define MAX_HEADER_BUFF_LENGTH (MAX_HEADER_NAME_LENGTH + MAX_HEADER_VALUE_LENGTH + 3 + 10)
 //there can be maximum 4 headers in request OR reply ("get" method reply)
 #define MAX_NUM_HEADERS 4
 //maximum length of line in reply content (for "show inbox" method)
-#define MAX_MESSAGE_DESC_LINE_LEN (5+5+MAX_USERNAME+MAX_SUBJECT)
+#define MAX_MESSAGE_DESC_LINE_LEN (5+5+MAX_USERNAME+MAX_SUBJECT + 10)
 
 
 
