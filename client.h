@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
 #include <netdb.h>
 #include <errno.h>
 #include <stdio.h>
@@ -17,9 +18,10 @@
 #include "utils.h"
 #include "protocol.h"
 
-#define DEFAULT_PORT 6423
 
-int setup_client();
+
+//will create socket and connect to server with given parameters.
+int setup_client(const char * port_str, const char * hostname_str);
 
 
 void handle_connection (int socket);

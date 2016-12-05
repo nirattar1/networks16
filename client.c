@@ -5,29 +5,51 @@
  *      Author: nirattar
  */
 
+
 #include "client.h"
 #include "protocol.h"
 #include "console_ui.h"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <netdb.h>
+
 
 static void Test_SendTestReqs(int socket);
+static void Test_ShowInbox(int socket);
 
-int main ()
+int main(int argc, char* argv[])
 {
 
+	char * port_str = DEFAULT_PORT;
+	char default_hostname [] = DEFAULT_HOSTNAME;
+	char * hostname_or_ip = default_hostname;
 
-	//client connect to server right away.
+	//read arguments. (on no arguments - defaults will be used).
+	if (argc==2)  //argument for hostname.
+	{
+		//read host/ipname
+		hostname_or_ip = argv[1];
+		debug_print("using hostname: %s\n", hostname_or_ip);
+	}
+	else if (argc>=3) //arguments for hostname+port.
+	{
+		//read host/ipname
+		hostname_or_ip = argv[1];
+		debug_print("using hostname: %s\n", hostname_or_ip);
 
-	//create socket.
-	int sfd = setup_client();
+		//read port.
+		port_str = argv[2];
+		debug_print("using port: %s\n", port_str);
+	}
 
-	//connect to server.
-	struct sockaddr_in dest_addr;
-	dest_addr.sin_family = AF_INET;
-	dest_addr.sin_port = htons( DEFAULT_PORT );
-	inet_pton(AF_INET, "127.0.0.1", &dest_addr.sin_addr);
-	connect(sfd, (struct sockaddr*) &dest_addr, sizeof(struct sockaddr));
+
+	//client will create socket and connect to server right away.
+	int sfd = setup_client(port_str, hostname_or_ip);
+
 	//ERROR CODE
 
 	//connection is ready. handle according to protocol/input.
@@ -48,15 +70,50 @@ int main ()
 }
 
 
-int setup_client()
+int setup_client(const char * port_str, const char * hostname_str)
 {
 
+	int sfd;
+	struct addrinfo hints, *servinfo, *p;
+	int rv;
 
-	int sfd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sfd == -1)
-	{
-		handle_error("socket");
+	memset(&hints, 0, sizeof hints);
+	hints.ai_family = AF_UNSPEC; // IPv4 or IPv6
+	hints.ai_socktype = SOCK_STREAM;
+
+	//get address info (including DNS)
+	if ((rv = getaddrinfo(hostname_str, port_str, &hints, &servinfo)) != 0) {
+	    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+	    exit(1);
 	}
+
+	//act based on results of address info.
+	//(connect to the first available result)
+	for(p = servinfo; p != NULL; p = p->ai_next)
+	{
+	    if ((sfd = socket(p->ai_family, p->ai_socktype,
+	            p->ai_protocol)) == -1)
+	    {
+	        perror("socket");
+	        continue;
+	    }
+
+	    if (connect(sfd, p->ai_addr, p->ai_addrlen) == -1)
+	    {
+	        perror("connect");
+	        close(sfd);
+	        continue;
+	    }
+
+	    break; // if we get here, we must have connected successfully
+	}
+
+	if (p == NULL) {
+	    // looped off the end of the list with no connection
+	    fprintf(stderr, "failed to connect\n");
+	    exit(2);
+	}
+
 
 	return sfd;
 
@@ -77,15 +134,38 @@ void handle_connection (int socket)
 	//display greeting message
 	printf("%s\n", msg_buf);
 
-	//perform login
+	//perform login (exit on wrong login)
+	Menu_ClientLoginReadAndSend(socket);
 
+	//if reached here, then login was successful.
 	//read and performs loop of commands from user.
 	//will send to socket.
-	//Menu_ClientReadAndDoCommands(socket);
+	Menu_ClientReadAndDoCommands(socket);
+
+	//tests
+	//Test_ShowInbox(socket);
+	//Test_SendTestReqs(socket);
+}
 
 
-	//send test requests
-	Test_SendTestReqs(socket);
+static void Test_ShowInbox(int socket)
+{
+	//send test request.
+	//("SHOW_INBOX" request)
+	ProtocolRequest req;
+	ProtocolRequest_Init(&req);
+	req._method = METHOD_SHOW_INBOX;
+
+	//send request
+	SendReqToSocket (socket, &req);
+
+	//read reply from socket
+	ProtocolReply rep;
+	ProtocolReply_Init(&rep);
+	ReadRepHeadersFromSocket(socket, &rep, req._method);
+
+	//handle reply (based on request)
+	ReplyHandle(socket, &rep, req._method);
 }
 
 static void Test_SendTestReqs(int socket)

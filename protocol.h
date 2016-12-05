@@ -8,16 +8,25 @@
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
 
-#include "msg.h"
-
 //provide: 1. data structures to represent protocol requests/replies.
 //2. functionality to translate between protocol requests/replies
 //and mail message data structures.
 
+//INCLUDES:
+#include "msg.h"
+
+
+
+//PARAMETERS:
+//connection variables
+#define DEFAULT_PORT "6423"
+#define DEFAULT_HOSTNAME "localhost"
+
+
 //all method names are 3 letters. (LGN, GET, ...)
 #define LEN_METHOD_NAME 3
 //longest header name is "password"
-#define MAX_HEADER_NAME_LENGTH 8
+#define MAX_HEADER_NAME_LENGTH 20
 //longest header value is in mail content field ("compose" method)
 #define MAX_HEADER_VALUE_LENGTH MAX_CONTENT
 //maximum length of header when sent (name, value, ' :' and '\n')
@@ -26,6 +35,13 @@
 #define MAX_NUM_HEADERS 4
 //maximum length of line in reply content (for "show inbox" method)
 #define MAX_MESSAGE_DESC_LINE_LEN (5+5+MAX_USERNAME+MAX_SUBJECT)
+
+
+
+
+
+
+//START STRUCTS AND FUNCTIONALITY:
 
 typedef struct ProtocolHeader
 {

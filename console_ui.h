@@ -25,5 +25,8 @@ int readline (char * line);
 //assumes user already performed TCP connection and login.
 int Menu_ClientReadAndDoCommands(int socket);
 
+//will read client's login details,
+//then perform login to server.
+int Menu_ClientLoginReadAndSend(int socket);
 
 #endif /* CONSOLE_UI_H_ */

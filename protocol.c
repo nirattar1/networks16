@@ -585,7 +585,7 @@ void ReadPrintRepContentFromSocket(int socket)
 		//read up to newline into buffer.
 		recv_until_delim(socket, msg_description_buf, '\n', &len);
 		//print buffer
-		printf("%.*s", len, msg_description_buf);
+		printf("%.*s\n", len, msg_description_buf);
 	}
 
 	//when here then last line was consumed.

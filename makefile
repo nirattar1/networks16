@@ -1,8 +1,8 @@
-CFLAGS=-Wall -g -std=c99 
+CFLAGS=-Wall -g -std=gnu99 
 
-#O_FILES= server.o utils.o nim-client.o protocol.o client.o
-O_FILES= server.o utils.o client.o
-EXECUTABLES= client server
+
+O_FILES= server.o utils.o client.o console_ui.o msg.o msg_db.o protocol.o
+EXECUTABLES= mail_client mail_server
 
 
 all: $(EXECUTABLES)
@@ -10,10 +10,10 @@ all: $(EXECUTABLES)
 clean:
 	-rm $(EXECUTABLES) $(O_FILES)
 
-client: client.o protocol.o utils.o msg.o console_ui.o
+mail_client: client.o protocol.o utils.o msg.o console_ui.o
 	gcc -o $@ $^ $(CFLAGS)
 
-server: server.o protocol.o utils.o msg.o msg_db.o
+mail_server: server.o protocol.o utils.o msg.o msg_db.o
 	gcc -o $@ $^ $(CFLAGS)
 
 client.o: client.c client.h protocol.c protocol.h utils.h
