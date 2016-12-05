@@ -25,7 +25,8 @@ int setup_client();
 void handle_connection (int socket);
 
 //functionality to handle with reply.
-void ReplyHandle(ProtocolReply * rep, Req_Method method);
+//this method may also continue to consume socket for reply content.
+void ReplyHandle(int socket, ProtocolReply * rep, Req_Method method);
 
 
 #endif /* CLIENT_H_ */

@@ -24,7 +24,8 @@
 #define MAX_HEADER_BUFF_LENGTH (MAX_HEADER_NAME_LENGTH + MAX_HEADER_VALUE_LENGTH + 3)
 //there can be maximum 4 headers in request OR reply ("get" method reply)
 #define MAX_NUM_HEADERS 4
-
+//maximum length of line in reply content (for "show inbox" method)
+#define MAX_MESSAGE_DESC_LINE_LEN (5+5+MAX_USERNAME+MAX_SUBJECT)
 
 typedef struct ProtocolHeader
 {
@@ -126,6 +127,11 @@ void MsgFromRequest_Server(MailMessage * msg, const ProtocolRequest * req,
 		const char * curr_user);
 
 
+//will take a header struct and a buffer,
+//will write to buffer the textual output of the header (i.e. 'name: value').
+//return number of chars written.
+int HeaderToString (const ProtocolHeader * header, char * buff_header);
+
 //will get a request struct, and a connection socket.
 //will send the appropriate request on the socket.
 //for client send
@@ -142,7 +148,15 @@ void SendRepToSocket (int socket, const ProtocolReply * rep);
 
 //read reply from socket. (for client receive)
 //will also receive the method of the originating request.
-void ReadRepFromSocket (int socket, ProtocolReply * rep, Req_Method reqMethod);
+//this method will consume all up to reply headers.
+//(reply content will be read afterwards for specific requests)
+void ReadRepHeadersFromSocket (int socket, ProtocolReply * rep, Req_Method reqMethod);
+
+
+//read and print reply content from socket.
+//important: reads and prints line by line, each line ends with \n
+//finish on extra \n
+void ReadPrintRepContentFromSocket(int socket);
 
 
 #endif /* PROTOCOL_H_ */

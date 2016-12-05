@@ -150,3 +150,13 @@ void RecipientsFromText (MailMessage * msg, const char * text_buffer)
 		token_recipient = strtok (NULL, ",");
 	}
 }
+
+int MsgToDescription(int index, const MailMessage * msg, char * buf_description)
+{
+	int n = 0;	//number of bytes written
+
+	//format of line: 'mail_id sender "subject"\n'
+	n += sprintf(buf_description, "%d %s \"%s\"\n", index, msg->_from, msg->_subject);
+
+	return n;
+}

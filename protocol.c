@@ -162,8 +162,6 @@ Req_Method StringToMethod(const char * buff_method)
 
 
 
-//will take a header struct and a buffer,
-//will write to buffer textual header.
 int HeaderToString (const ProtocolHeader * header, char * buff_header)
 {
 	int num_wrote = 0;
@@ -343,7 +341,6 @@ void ReadReqFromSocket (int socket, ProtocolRequest * req)
 	len = 1;
 	recv_until_delim(socket, &c_buff, '\n', &len);
 
-
 	//expect to see req headers based on method.
 	int expected_num_headers = GetExpectedNumHeaders_ForReq(req->_method);
 
@@ -367,7 +364,7 @@ void ReadReqFromSocket (int socket, ProtocolRequest * req)
 
 
 
-void ReadRepFromSocket (int socket, ProtocolReply * rep, Req_Method reqMethod)
+void ReadRepHeadersFromSocket (int socket, ProtocolReply * rep, Req_Method reqMethod)
 {
 
 	if (socket==0 || rep==NULL)
@@ -454,10 +451,10 @@ void MsgToRequest(const MailMessage * msg, ProtocolRequest * req)
 	char buff_recipients[MAX_HEADER_VALUE_LENGTH];
 	ZeroCharBuf (buff_recipients, MAX_HEADER_VALUE_LENGTH);
 	RecipientsToText (msg, buff_recipients);
-	AddHeaderReply (req, "To", buff_recipients);
+	AddHeaderRequest (req, "To", buff_recipients);
 
-	AddHeaderReply (req, "Subject", msg->_subject);
-	AddHeaderReply (req, "Text", msg->_content);
+	AddHeaderRequest (req, "Subject", msg->_subject);
+	AddHeaderRequest (req, "Text", msg->_content);
 }
 
 
@@ -557,4 +554,30 @@ void MsgFromRequest_Server(MailMessage * msg, const ProtocolRequest * req,
 	strcpy(msg->_from, curr_user);
 
 
+}
+
+
+void ReadPrintRepContentFromSocket(int socket)
+{
+	if (socket==0)
+	{
+		handle_error("read reply content- socket error");
+	}
+
+	int len=2;
+	//iterate on every line except the last \n
+	while (len>1)
+	{
+		//try read another line. (line ends with \n)
+		len = MAX_MESSAGE_DESC_LINE_LEN;
+		//prepare buffer for line.
+		char msg_description_buf[MAX_MESSAGE_DESC_LINE_LEN+1];
+		ZeroCharBuf(msg_description_buf, MAX_MESSAGE_DESC_LINE_LEN+1);
+		//read up to newline into buffer.
+		recv_until_delim(socket, msg_description_buf, '\n', &len);
+		//print buffer
+		printf("%.*s", len, msg_description_buf);
+	}
+
+	//when here then last line was consumed.
 }

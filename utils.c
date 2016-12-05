@@ -60,7 +60,7 @@ int recv_until_delim(int socket, char *buf, char delim, int *len)
     	//get char from socket.
     	n = recv(socket, &lastc, 1, 0);
         if (n == -1) { break; };
-        //copying last char if not delimiter.
+        //copying char if not delimiter.
         if (lastc!=delim)
 		{
 			buf[total] = lastc;

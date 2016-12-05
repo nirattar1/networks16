@@ -47,4 +47,10 @@ int AddMail(const MailMessage * msg, Mail_DB * db);
 //returns the index of that message (absolute in DB), -1 on failure.
 int GetUserMailDbIndex (int mail_id, const char * user_id, const Mail_DB * db);
 
+
+//will receive a message db, a socket and a user id.
+//will print to socket (line-by-line) descriptions of messages of that user.
+//format of line: 'mail_id sender "subject"\n'
+void SendUserMailList(int socket, const char * user_id, const Mail_DB * db);
+
 #endif /* MSG_DB_H_ */

@@ -35,6 +35,7 @@ int recvall(int socket, char *buf, int *len);
 
 //read from socket to buffer until delimiter char was read,
 //or until max_len chars were read.
+//delimiter char will not be copied.
 int recv_until_delim(int socket, char *buf, char delim, int *max_len);
 
 

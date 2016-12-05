@@ -87,10 +87,10 @@ void handle_connection (int socket)
 	//read reply from socket
 	ProtocolReply rep;
 	ProtocolReply_Init(&rep);
-	ReadRepFromSocket(socket, &rep, req._method);
+	ReadRepHeadersFromSocket(socket, &rep, req._method);
 
 	//handle reply (based on request)
-	ReplyHandle(&rep, req._method);
+	ReplyHandle(socket, &rep, req._method);
 
 
 
@@ -113,15 +113,31 @@ void handle_connection (int socket)
 
 	//read reply from socket
 	ProtocolReply_Init(&rep);
-	ReadRepFromSocket(socket, &rep, req._method);
+	ReadRepHeadersFromSocket(socket, &rep, req._method);
 
 	//handle reply (based on request)
-	ReplyHandle(&rep, req._method);
+	ReplyHandle(socket, &rep, req._method);
+
+
+	//send test request.
+	//("SHOW_INBOX" request)
+	ProtocolRequest_Init(&req);
+	req._method = METHOD_SHOW_INBOX;
+
+	//send request
+	SendReqToSocket (socket, &req);
+
+	//read reply from socket
+	ProtocolReply_Init(&rep);
+	ReadRepHeadersFromSocket(socket, &rep, req._method);
+
+	//handle reply (based on request)
+	ReplyHandle(socket, &rep, req._method);
 
 }
 
 
-void ReplyHandle(ProtocolReply * rep, Req_Method method)
+void ReplyHandle(int socket, ProtocolReply * rep, Req_Method method)
 {
 
 	debug_print("%s\n", "handling reply.");
@@ -164,5 +180,25 @@ void ReplyHandle(ProtocolReply * rep, Req_Method method)
 		}
 
 	}
+
+	else if (method==METHOD_SHOW_INBOX)
+	{
+		if(rep->_status==REPLY_STATUS_OK)
+		{
+			//in this case there is still data to be read from buffer.
+			//(reply content)
+			//read and immediately print it.
+			//reading will be done in buffers.
+			ReadPrintRepContentFromSocket(socket);
+		}
+		else
+		{
+			handle_error("failure compose method.");
+		}
+
+	}
+
+
 }
+
 

@@ -127,7 +127,6 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 		debug_print("req type:%d\n", req._method);
 		//TODO Print header nicely
 
-
 		//handle user's request.
 		//will also return reply.
 		RequestDispatch(conn, &req, curr_user);
@@ -145,7 +144,6 @@ void handle_connection (int conn, struct sockaddr_in * client_addr, socklen_t cl
 
 void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr_user)
 {
-	int expected_num_headers = GetExpectedNumHeaders_ForReq(req->_method);
 
 	//GET method
 	if (req->_method==METHOD_GET)
@@ -207,6 +205,28 @@ void RequestDispatch (int socket, const ProtocolRequest * req, const char * curr
 
 		//send the reply over socket.
 		SendRepToSocket (socket, &rep);
+	}
+
+	//SHOW_INBOX method
+	else if (req->_method==METHOD_SHOW_INBOX)
+	{
+		//create reply with appropriate error code.
+		ProtocolReply rep;
+		ProtocolReply_Init (&rep);
+
+		//TODO can there be failure here?
+		debug_print("%s\n", "printing mail list.");
+		rep._status = REPLY_STATUS_OK;
+
+		//send the reply over socket.
+		SendRepToSocket (socket, &rep);
+
+		const Mail_DB * db = GetServerDB();
+
+		//find and send messages to reply.
+		SendUserMailList(socket, curr_user, db);
+
+
 	}
 
 }

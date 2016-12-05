@@ -60,9 +60,14 @@ int Message_MatchesRecipient (const MailMessage * msg, const char * recipient);
 void RecipientsToText (const MailMessage * msg, char * text_buffer);
 
 //read messages recipients list from text into message.
-//note: will modify text_buffer due to tokenizer.
 //recipients are divide by commas: "Moshe,David,..."
 void RecipientsFromText (MailMessage * msg, const char * text_buffer);
 
+
+//will get a message (with an index number).
+//will fill buffer with description line of message.
+//format of line: 'mail_id sender "subject"\n'
+//return number of bytes written.
+int MsgToDescription(int index, const MailMessage * msg, char * buf_description);
 
 #endif /* MSG_H_ */

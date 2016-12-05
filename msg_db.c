@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "utils.h"
+#include "protocol.h"
 
 void Mail_DB_Init (Mail_DB * db)
 {
@@ -124,4 +125,48 @@ int GetUserMailDbIndex (int mail_id, const char * user_id, const Mail_DB * db)
 
 	//if here means we haven't found appropriate msg of that user.
 	return -1;
+}
+
+
+void SendUserMailList(int socket, const char * user_id, const Mail_DB * db)
+{
+
+	if (socket==0 || user_id==NULL || db==NULL)
+	{
+		handle_error("null pointer or socket - SendUserMailList");
+	}
+
+	int user_i = 0; //index of messages relative to user
+
+	//loop over DB, find next message of user.
+	for (int i=0; i<db->_curr_size; i++)
+	{
+
+		const MailMessage * curr_msg = &(db->_msgs[i]);
+
+		//check if mail matches user AND not deleted.
+		if (Message_MatchesRecipient(curr_msg, user_id)==1)
+		{
+
+			//always incremented (even if deleted)
+			user_i++;
+
+			//TODO check if deleted.
+			if (1)
+			{
+				//prepare buffer for line.
+				char msg_description_buf[MAX_MESSAGE_DESC_LINE_LEN];
+
+				//fill buffer with message data.
+				int len = MsgToDescription(user_i, curr_msg, msg_description_buf);
+
+				//send message line.
+				sendall(socket, msg_description_buf, &len);
+			}
+		}
+	}
+
+	//finally send last \n
+	int len = 1;
+	sendall(socket, "\n", &len);
 }

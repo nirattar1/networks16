@@ -28,7 +28,7 @@ protocol.o: protocol.c protocol.h
 msg_db.o: msg.c msg.h msg_db.c msg_db.h utils.h
 	gcc -c $(CFLAGS) $*.c
 
-msg.o: msg.c msg.h
+msg.o: msg.c msg.h protocol.c protocol.h
 	gcc -c $(CFLAGS) $*.c
 
 #
